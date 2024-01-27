@@ -22,6 +22,7 @@ public class TicTacToe {
                 board[i][j].setLayoutY(i * height);
                 board[i][j].setBackground(Background.fill(Color.valueOf("#bfd0cc")));
                 board[i][j].setBorder(Border.stroke(Color.BLACK));
+
             }
         }
     }

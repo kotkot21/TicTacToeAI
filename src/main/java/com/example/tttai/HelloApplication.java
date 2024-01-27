@@ -1,13 +1,7 @@
 package com.example.tttai;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.DefaultProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,9 +12,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
-import javax.security.auth.callback.TextInputCallback;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -32,32 +24,16 @@ public class HelloApplication extends Application {
     Player p2;
     Player cp;
     Pane gameBoard = new Pane();
-    int coun = 0;
-    Button[][] btnpos = new Button[3][3];
-    double width = 100;
-    double height = 100;
-    boolean hasWinner = false;
-    boolean isplayerA = true;
     Label lbldis = new Label();
     Label title = new Label();
     Label SetTile = new Label();
-    Label counterhum = new Label();
-    Label countcomp = new Label();
-
     Button newGamebtn = new Button("New Game");
     Button quitbtn = new Button("Quit");
     BorderPane border;
-    TextField txt = new TextField();
-
     Label pName1 = new Label("First Player Name");
     TextField player1 = new TextField();
     Label pName2 = new Label("Second Player Name");
     TextField player2 = new TextField();
-    static Line line;
-    private int currentRound = 1;
-    int numberOfRounds;
-    int compcounter = 0;
-    int humcounter = 0;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -73,11 +49,8 @@ public class HelloApplication extends Application {
 
         HBox hbox = new HBox();
         hbox.getChildren().addAll(pVp, EZ, AI);
-        Label counter1 = new Label();
-        Label counter2 = new Label();
 
         VBox vbox = new VBox();
-
 
 
         vbox.getChildren().addAll(pName1, player1, pName2, player2);
@@ -138,6 +111,7 @@ public class HelloApplication extends Application {
                             TicTacToe.board[i][j].setOnAction(ev -> {
                                 pressButton(row, col);
                             });
+
                         }
                     }
                 }
@@ -208,7 +182,6 @@ public class HelloApplication extends Application {
             }
 
         });
-        Label lbl = new Label("Enter the number of Rounds");
 
         newGamebtn.setPrefSize(100, 30);
         newGamebtn.setLayoutX(200);
@@ -228,27 +201,30 @@ public class HelloApplication extends Application {
         settings.add(quitbtn, 0, 6);
         settings.add(vbox, 0, 7);
         settings.add(hbox, 0, 8);
-        settings.add(lbl,0,9);
-        settings.add(txt,0,10);
-        settings.add(choice, 0, 11);
-        settings.add(startPlaying, 0, 12);
-        settings.add(counterhum,0,13);
-        settings.add(countcomp,1,13);
+        settings.add(choice, 0, 9);
+        settings.add(startPlaying, 0, 10);
+
 
         settings.setPadding(new Insets(15, 25, 15, 15));
         settings.setVgap(2.5);
-        border.setStyle("-fx-background-color: white ; -fx-border-width: 10px");
+        border.setStyle("-fx-background-color: #add8e6; -fx-border-width: 10px");
         border.setTop(lbldis);
         border.setLeft(settings);
         border.setCenter(gameBoard);
         ///////////////
         Scene scene = new Scene(border, 800, 450);
-        stage.setTitle("Hello!");
+        stage.setTitle("Tic Tac Toe");
         stage.setScene(scene);
         stage.show();
         newGamebtn.setOnAction(e -> {
-            EnableAllButtons();
-            clearButtons();
+            stage.close();
+            Platform.runLater(() -> {
+                try {
+                    new HelloApplication().start(new Stage());
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
         });
 
         quitbtn.setOnAction(e ->
@@ -271,61 +247,60 @@ public class HelloApplication extends Application {
         }
     }
 
-
     public void pressButton(int row, int col) {
-
-        counterhum.setText(p1.name + "\n"+String.valueOf(compcounter));
-
-        countcomp.setText(p2.name + "\n"+String.valueOf(humcounter));
-
-        String s = txt.getText().trim();
-        numberOfRounds = Integer.parseInt(s);
 
         for (int i = 0; i < 2; i++) {
             cp.makeMove(row, col);
-            if (TicTacToe.checkColWin() || TicTacToe.checkRowWin() || TicTacToe.checkDiagWin()) {
-                lbldis.setText("Round: "+cp.name + " Won");
-                clearButtons();
-                EnableAllButtons();
-                if (Objects.equals(cp.name, player1.getText())){
-                    humcounter++;
-                }
-                else if (Objects.equals(cp.name, p2.name)){
-                    compcounter++;
-                }
-                counterhum.setText(p1.name + "\n"+String.valueOf(humcounter));
-
-                countcomp.setText(p2.name + "\n"+String.valueOf(compcounter));
-                currentRound++;
-                if (currentRound > numberOfRounds) {
-                    lbldis.setText("Game Over "+ numberOfRounds +" rounds completed!");
-                    DisableAllButtons();
-                }
+            if (!TicTacToe.board[0][i].getText().isEmpty() && Objects.equals(TicTacToe.board[0][i].getText(), TicTacToe.board[1][i].getText())
+                    && Objects.equals(TicTacToe.board[1][i].getText(), TicTacToe.board[2][i].getText())) {
+                lbldis.setText(cp.name + " Won");
+                TicTacToe.board[0][i].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[1][i].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[2][i].setBackground(Background.fill(Color.SPRINGGREEN));
+                DisableAllButtons();
                 break;
-            } else if (TicTacToe.checkDraw()) {
+            } else if (!TicTacToe.board[i][0].getText().isEmpty() && Objects.equals(TicTacToe.board[i][0].getText(), TicTacToe.board[i][1].getText())
+                    && Objects.equals(TicTacToe.board[i][1].getText(), TicTacToe.board[i][2].getText())) {
+                lbldis.setText(cp.name + " Won");
+                TicTacToe.board[i][0].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[i][1].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[i][2].setBackground(Background.fill(Color.SPRINGGREEN));
+                DisableAllButtons();
+                break;
+            } else if ((!TicTacToe.board[0][0].getText().isEmpty() &&
+                    Objects.equals(TicTacToe.board[0][0].getText(), TicTacToe.board[1][1].getText())
+                    && Objects.equals(TicTacToe.board[1][1].getText(), TicTacToe.board[2][2].getText()))) {
+                DisableAllButtons();
+                lbldis.setText(cp.name + " Won");
+                TicTacToe.board[0][0].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[1][1].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[2][2].setBackground(Background.fill(Color.SPRINGGREEN));
+                break;
+            } else if (!TicTacToe.board[0][2].getText().isEmpty()
+                    && Objects.equals(TicTacToe.board[0][2].getText(), TicTacToe.board[1][1].getText())
+                    && Objects.equals(TicTacToe.board[1][1].getText(), TicTacToe.board[2][0].getText())) {
+                lbldis.setText(cp.name + " Won");
+                DisableAllButtons();
+                TicTacToe.board[0][2].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[1][1].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[2][0].setBackground(Background.fill(Color.SPRINGGREEN));
+                break;
+            }
+            if (TicTacToe.checkDraw()) {
                 lbldis.setText("Game is a draw");
 
-                clearButtons();
-                EnableAllButtons();
-                System.out.println("Game is a draw ");
-                if (currentRound > numberOfRounds) {
-                    lbldis.setText("Game Over "+ numberOfRounds +" rounds completed!");
-                    DisableAllButtons();
-                }
+                DisableAllButtons();
                 break;
             } else {
                 if (cp == p1) {
                     cp = p2;
-                    lbldis.setText("Round: " + currentRound+ cp.name + " Turn");
-
                 } else {
                     Platform.runLater(() -> {
-
                         cp.makeMove(row, col);
+                        lbldis.setText(cp.name + " Turn");
                     });
-
                     cp = p1;
-                    lbldis.setText("Round: " + currentRound+ cp.name + " Turn");
+                    lbldis.setText(cp.name + " Turn");
 
                 }
             }
@@ -333,58 +308,58 @@ public class HelloApplication extends Application {
     }
 
     public void pvp(int row, int col) {
-        counterhum.setText(p1.name + "\n" + String.valueOf(compcounter));
-        countcomp.setText(p2.name + "\n" + String.valueOf(humcounter));
-
-        String s = txt.getText().trim();
-        numberOfRounds = Integer.parseInt(s);
 
         TicTacToe.board[row][col].setText(cp.mark);
-        cp.makeMove(row, col);
-
-        if (TicTacToe.checkColWin() || TicTacToe.checkRowWin() || TicTacToe.checkDiagWin()) {
-            lbldis.setText("Round: " + currentRound + cp.name + " Won");
-            currentRound++;
-            clearButtons();
-            EnableAllButtons();
-
-            if (Objects.equals(cp.name, player1.getText())) {
-                humcounter++;
-            } else if (Objects.equals(cp.name, player2.getText())) {
-                compcounter++;
-            }
-
-            counterhum.setText(p1.name + "\n" + String.valueOf(humcounter));
-            countcomp.setText(p2.name + "\n" + String.valueOf(compcounter));
-
-            if (currentRound <= numberOfRounds) {
-                lbldis.setText("Round: " + currentRound + " "+cp.name + " Turn");
-            } else {
-                lbldis.setText("Game Over " + numberOfRounds + " rounds completed!");
+        for (int i = 0; i < 2; i++) {
+            cp.makeMove(row, col);
+            if (!TicTacToe.board[0][i].getText().isEmpty() && Objects.equals(TicTacToe.board[0][i].getText(), TicTacToe.board[1][i].getText())
+                    && Objects.equals(TicTacToe.board[1][i].getText(), TicTacToe.board[2][i].getText())) {
+                lbldis.setText(cp.name + " Won");
+                TicTacToe.board[0][i].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[1][i].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[2][i].setBackground(Background.fill(Color.SPRINGGREEN));
                 DisableAllButtons();
+                break;
+            } else if (!TicTacToe.board[i][0].getText().isEmpty() && Objects.equals(TicTacToe.board[i][0].getText(), TicTacToe.board[i][1].getText())
+                    && Objects.equals(TicTacToe.board[i][1].getText(), TicTacToe.board[i][2].getText())) {
+                lbldis.setText(cp.name + " Won");
+                TicTacToe.board[i][0].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[i][1].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[i][2].setBackground(Background.fill(Color.SPRINGGREEN));
+                DisableAllButtons();
+                break;
+            } else if ((!TicTacToe.board[0][0].getText().isEmpty() &&
+                    Objects.equals(TicTacToe.board[0][0].getText(), TicTacToe.board[1][1].getText())
+                    && Objects.equals(TicTacToe.board[1][1].getText(), TicTacToe.board[2][2].getText()))) {
+                DisableAllButtons();
+                lbldis.setText(cp.name + " Won");
+                TicTacToe.board[0][0].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[1][1].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[2][2].setBackground(Background.fill(Color.SPRINGGREEN));
+                break;
+            } else if (!TicTacToe.board[0][2].getText().isEmpty()
+                    && Objects.equals(TicTacToe.board[0][2].getText(), TicTacToe.board[1][1].getText())
+                    && Objects.equals(TicTacToe.board[1][1].getText(), TicTacToe.board[2][0].getText())) {
+                lbldis.setText(cp.name + " Won");
+                DisableAllButtons();
+                TicTacToe.board[0][2].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[1][1].setBackground(Background.fill(Color.SPRINGGREEN));
+                TicTacToe.board[2][0].setBackground(Background.fill(Color.SPRINGGREEN));
+                break;
             }
-        } else if (TicTacToe.checkDraw()) {
+        } if (TicTacToe.checkDraw()) {
             lbldis.setText("Game is a draw");
-            clearButtons();
-            EnableAllButtons();
-            System.out.println("Game is a draw ");
-
-            currentRound++;
-            if (currentRound <= numberOfRounds) {
-                lbldis.setText("Round: " + currentRound + " "+cp.name + " Turn");
-            } else {
-                lbldis.setText("Game Over " + numberOfRounds + " rounds completed!");
-                DisableAllButtons();
-            }
+            DisableAllButtons();
         } else {
             if (cp == p1) {
                 cp = p2;
+                lbldis.setText(cp.name + " Turn");
             } else {
                 cp = p1;
-            }lbldis.setText("Round: " + currentRound + " "+cp.name + " Turn");
+            }
+            lbldis.setText(cp.name + " Turn");
         }
     }
-
 
 
     public void DisableAllButtons() {
